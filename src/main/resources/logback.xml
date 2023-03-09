@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+scan：當此屬性設置爲true時，配置文件如果發生改變，將會被重新加載，默認值爲true。
+scanPeriod：設置監測配置文件是否有修改的時間間隔，如果沒有給出時間單位，默認單位是毫秒當scan爲true時，此屬性生效。默認的時間間隔爲1分鐘。
+debug：當此屬性設置爲true時，將打印出logback內部日誌信息，實時查看logback運行狀態。默認值爲false。
+-->
+<configuration scan="true" scanPeriod="60 seconds" debug="false"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="http://www.padual.com/java/logback.xsd">
+
+
+    <!-- 定義日誌的根目錄 -->
+    <property name="LOG_HOME" value="springbootv2-log" />
+    <!-- 定義日誌文件名稱 -->
+    <property name="appName" value="springbootv2"></property>
+
+
+    <!-- 控制檯輸出 -->
+
+    <!-- ch.qos.logback.core.ConsoleAppender 表示控制檯輸出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!--
+            日誌輸出格式：
+            %d表示日期時間，
+            %thread表示線程名，
+            %-5level：級別從左顯示5個字符寬度
+            %logger{50} 表示logger名字最長50個字符，否則按照句點分割。
+            %msg：日誌消息，
+            %n是換行符
+        -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <!--<springProfile name="dev">-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} -> [%thread] -> %-5level %logger{50} - %msg%n</pattern>
+            <!--</springProfile>-->
+            <!--<springProfile name="!dev">-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+            <!--</springProfile>-->
+        </layout>
+    </appender>
+
+    <!-- 控制檯輸出 END -->
+
+
+    <!-- 文件輸出 -->
+    <!-- 滾動記錄文件，先將日誌記錄到指定文件，當符合某個條件時，將日誌記錄到其他文件 -->
+    <appender name="appLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日誌文件的名稱 -->
+        <file>${LOG_HOME}/${appName}.log</file>
+        <!-- 如果是 true，日誌被追加到文件結尾，如果是 false，清空現存文件，默認是true。 -->
+        　　　　	<append>true</append>
+        <!--
+	       	 當發生滾動時，決定 RollingFileAppender 的行爲，涉及文件移動和重命名
+	        TimeBasedRollingPolicy： 最常用的滾動策略，它根據時間來制定滾動策略，既負責滾動也負責出發滾動。
+        -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--
+            	滾動時產生的文件的存放位置及文件名稱 %d{yyyy-MM-dd}：按天進行日誌滾動
+            	%i：當文件大小超過maxFileSize時，按照i進行文件滾動
+            -->
+            <fileNamePattern>${LOG_HOME}/${appName}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!--
+			            可選節點，控制保留的歸檔文件的最大數量，超出數量就刪除舊文件。假設設置每天滾動，
+			            且maxHistory是30，則只保存最近30天的文件，刪除之前的舊文件。注意，刪除舊文件是時，
+			            那些爲了歸檔而創建的目錄也會被刪除。
+            -->
+            <MaxHistory>30</MaxHistory>
+            <!--
+			            當日志文件超過maxFileSize指定的大小時，根據上面提到的%i進行日誌文件滾動
+			            注意此處配置SizeBasedTriggeringPolicy是無法實現按文件大小進行滾動的，必須配置timeBasedFileNamingAndTriggeringPolicy
+            -->
+            <maxFileSize>50MB</maxFileSize>
+        </rollingPolicy>
+        <!-- 日誌輸出格式： -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [ %thread ] - [ %-5level ] [ %logger{50} : %line ] - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 文件輸出-END -->
+
+
+
+
+
+
+    <!--
+        logger主要用於存放日誌對象，也可以定義日誌類型、級別
+        name：表示匹配的logger類型前綴，也就是包的前半部分
+        level：要記錄的日誌級別，包括 TRACE < DEBUG < INFO < WARN < ERROR
+        additivity：作用在於children-logger是否使用 rootLogger配置的appender進行輸出，也可以理解爲是否向上傳遞
+        false：表示只用當前logger的appender-ref，
+        true：表示當前logger的appender-ref和rootLogger的appender-ref都有效
+    -->
+
+    <!-- mybatis logger -->
+    <logger name="org.mybatis" level="error"/>
+    <logger name="java.sql.Connection" level="DEBUG"/>
+    <logger name="java.sql.Statement" level="DEBUG"/>
+    <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+    <!-- 自己項目的 -->
+    <logger name="com.fc" level="DEBUG"/>
+
+
+    <!--
+        root與logger是父子關係，沒有特別定義則默認爲root，任何一個類只會和一個logger對應，
+        要麼是定義的logger，要麼是root，判斷的關鍵在於找到這個logger，然後判斷這個logger的appender和level。
+    -->
+
+
+    <!-- dev環境 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <!-- 控制檯 -->
+            <appender-ref ref="console" />
+        </root>
+    </springProfile>
+
+    <!-- 生產環境 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="appLogAppender"/>
+        </root>
+    </springProfile>
+</configuration>
+
+
+
+
+
+
+        <!--
+
+
+        idea好像會報錯解決方案
+
+        <springProfile name="dev">
+            <root level="INFO">
+                <appender-ref ref="console" />
+            </root>
+        </springProfile>
+
+           <springProfile name="prod">
+            <root level="INFO">
+                <appender-ref ref="appLogAppender"/>
+            </root>
+        </springProfile>
+
+        改爲
+        <root level="INFO">
+            <appender-ref ref="console" />
+        </root>
+        或者
+        <root level="INFO">
+              <appender-ref ref="appLogAppender"/>
+        </root>
+
+
+        使用方法：
+
+        1、根據自己實際項目路徑修改地址
+
+        <property name="LOG_HOME" value="d:\\springbootv2-log" />
+
+
+        2、
+        dev環境   與    生產環境  根據application.yml 裏面的
+        spring :
+          # 環境 dev|test|prod
+          profiles :
+            active : prod
+
+        來進行配置的
+
+
+        3、如果改變了的目錄結構需要修改 上面的 name爲自己的項目目錄
+
+        <logger name="com.fc" level="DEBUG"/>
+
+
+
+        4、注意事項
+        開發環境只輸出到控制檯
+        生成環境生成log日誌
+
+        最後，這樣一改真好!!!!!
+
+
+
+         -->

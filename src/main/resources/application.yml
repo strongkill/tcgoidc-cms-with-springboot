@@ -1,0 +1,103 @@
+# 項目相關配置
+fuce:
+  #名稱
+  name: v2
+  #版本
+  version: 4.2
+  #版權年份
+  copyright-year: 2018
+  #郵件功能
+  #郵箱發送smtp
+  email-smtp: smtp.sina.com
+  #郵箱發送端口
+  email-port: 465
+  #發送郵箱登錄賬號
+  email-account: 1@sina.com
+  #發送郵箱登錄密碼
+  email-password: f1
+  #實例演示開關 啓動該模式刪除增加修改會彈出演示模式提示框
+  demo-enabled: false
+  #漂亮得拖動驗證碼 默認false普通驗證碼、true滾動驗證碼
+  roll-verification: false
+  #xss不攔截url
+  xss-not-filter-url: [/api/v1/token/api_token,/api/v1/yibaotong/save]
+  #shiro不攔截url
+  sa-token-not-filter-url: [/api/v1/token/api_token,/api/v1/yibaotong/save]
+#tomcat config
+server :
+  port : 8080
+  ##項目名字配置
+  #servlet :
+  #  context-path : /demo
+  tomcat :
+    uri-encoding : UTF-8
+    #xx 報錯修改的地方
+    max-connections: 200000
+    max-http-form-post-size: 9000000
+    threads:
+      max: 128
+      min-spare: 5
+spring :
+  messages:
+    basename: i18n.messages
+  # 環境 dev|test|prod
+  profiles :
+    active : @spring.active@
+    #引入其他配置文件，例如ftpHX 未配置文件application-ftpHX.yml
+    #include: ftpHX,ftpCloud
+  servlet:
+    multipart:
+      #設置總上傳的數據大小
+      max-request-size: 100MB
+      #單個文件大小
+      maxFileSize : 30MB
+      #xx 報錯修改的地方
+    max-connections: 200000
+    max-http-post-size: 9000000
+  #熱部署模塊
+  devtools:
+    restart:
+      #熱部署開關
+      enabled: true
+      #指定熱部署的目錄
+      additional-paths: src/main/java
+      #指定目錄不更新
+      exclude: test/**
+  mvc:   #靜態文件
+    static-path-pattern : /static/**
+  #模板引擎
+  thymeleaf:
+    model: HTML5
+    prefix: classpath:/templates/
+    suffix: .html
+    #指定編碼
+    encoding: utf-8
+    #禁用緩存 默認false
+    cache: false
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+#mybatis:
+#  #配置mapper的掃描，找到所有的mapper.xml映射文件
+#  mapperLocations : classpath*:mybatis/*/*.xml
+#  #mybatis提供三種sql執行器，分別是SIMPLE、REUSE、BATCH。
+#  executor-type : reuse
+#  #搜索指定包別名
+#  typeAliasesPackage : com.*.model
+#  #該配置項就是指將帶有下劃線的表字段映射爲駝峯格式的實體類屬性。
+#  configuration :
+#    map-underscore-to-camel-case : true
+#pagehelper分頁插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+oss:
+  enable: true
+  info: true
+  path-style-access: false  #使用雲OSS 需要關閉
+  endpoint: http://127.0.0.1:9000 #對應上圖 ③ 處配置
+  access-key: minioadmin  # 上文創建的AK
+  secret-key: minioadmin # 上文創建的SK
+  bucket-name: v2-cloud  # 上文創建的桶名稱

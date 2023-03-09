@@ -1,0 +1,9 @@
+templates爲 html代碼   生成的文件請放入SpringBoot_v2\src\main\resources\templates 下面
+main爲java代碼                  生成的文件請放入SpringBoot_v2\src\main\
+mybatis 爲 xml代碼         生成的文件請放入SpringBoot_v2\src\main\resources\mybatis
+
+界面點擊覆蓋只需要 執行sql文件
+
+
+menu.sql mysql 控制檯執行
+需要注意  pid 在頁面的權限列表裏面選擇一個

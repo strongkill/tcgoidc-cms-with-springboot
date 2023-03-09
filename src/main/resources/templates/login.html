@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('Login')"/>
+    <link rel="stylesheet" th:href="@{/static/admin/css/other/login.css}" />
+</head>
+<!-- 代 碼 結 構 -->
+<body th:background="@{/static/admin/images/login.svg}">
+<form class="layui-form" action="javascript:void(0);">
+    <div class="layui-form-item">
+        <img class="logo" th:src="@{/static/admin/images/logo.png}" />
+        <div class="title" th:text="#{login.tips.title}"></div>
+        <div class="desc" th:text="#{login.tip}">
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <input name="username" type="text" th:placeholder="#{login.username}" value="admin" hover class="layui-input"  />
+    </div>
+    <div class="layui-form-item">
+        <input name="password" type="password" th:placeholder="#{login.password}" value="admin" hover class="layui-input"  />
+    </div>
+    <div class="layui-form-item">
+        <input th:placeholder="#{login.captch}" name="captcha" hover class="code layui-input layui-input-inline"  />
+        <img th:src="@{/captcha/captchaImage?type=char}" class="codeImage" id="captchaImage"/>
+    </div>
+    <div class="layui-form-item">
+        <input type="checkbox" name="rememberMe" th:title="#{login.tips.rememberpasswd}" lay-skin="primary">
+    </div>
+    <div class="layui-form-item">
+        <button class="pear-btn pear-btn-success login" lay-submit lay-filter="login">
+            [[#{login.btn.loginBtn}]]
+        </button>
+    </div>
+</form>
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['form','jquery','layer'], function() {
+        let form = layui.form;
+        let $ = layui.jquery;
+        let layer = layui.layer;
+        form.on('submit(login)', function(data){
+            $(".login").attr("disabled","disabled")
+            let loader = layer.load();
+            $(".login").html("<i class='layui-icon layui-anim layui-anim-rotate layui-anim-loop layui-icon-loading' />");
+            $.ajax({
+                url:rootPath+'/admin/login',
+                data:data.field,
+                type:"post",
+                dataType:'json',
+                success:function(result){
+                    if(result.code==200){
+
+                        layer.msg(result.msg,{icon:1,time:1000},function(){
+                            location.href = rootPath+"/admin/index";
+                        })
+                    }else{
+                        layer.msg(result.msg,{icon:2,time:1000},function(){
+                            document.getElementById("captchaImage").src=rootPath+"/captcha/captchaImage?type=char&s="+Math.random();
+                        });
+                        $(".login").removeAttr("disabled");
+                    }
+                    $(".login").html("[[#{login.btn.loginBtn}]]")
+                    layer.close(loader);
+                }
+            });
+            return false;
+        });
+
+        $("#captchaImage").click(function(){
+            document.getElementById("captchaImage").src=rootPath+"/captcha/captchaImage?type=char&s="+Math.random();
+        })
+        setInterval(function(){
+            document.getElementById("captchaImage").src=rootPath+"/captcha/captchaImage?type=char&s="+Math.random();
+        },30000);
+
+        validateKickout();
+
+    })
+
+
+</script>
+<!-- Session 過期處理 -->
+<script>
+    if(window!=top){ top.location.href = location.href; }
+    function validateKickout() {
+        if (getParam("kickout") == 1) {
+            layer.alert("<font color='red'>[[#{login.tips.relogin}]]</font>", {
+                    icon: 0,
+                    title: "[[#{system.tips.title}]]"
+                },
+                function(index) {
+                    //關閉彈窗
+                    layer.close(index);
+                });
+        }else if(getParam("sessionout") == 1){
+            layer.alert("<font color='red'>[[#{login.tips.timeout}]]</font>", {
+                    icon: 0,
+                    title: "[[#{system.tips.title}]]"
+                },
+                function(index) {
+                    //關閉彈窗
+                    layer.close(index);
+                });
+        }
+    }
+
+    function getParam(paramName) {
+        var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURI(r[2]);
+        return null;
+    }
+
+</script>
+
+</body>
+</html>
